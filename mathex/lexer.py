@@ -1,4 +1,6 @@
 from typing import List, Tuple
+from mathex.tokens import Token
+
 
 class Lexer:
     def __init__(self, text: str):
@@ -23,12 +25,12 @@ class Lexer:
             if self.current_char.isspace():
                 self.skip_whitespace()
                 continue
-            if self.current_char in '()+-*/,':
+            if self.current_char in (Token.LCURLY, Token.RCURLY, Token.PLUS, Token.MINUS, Token.MUL, Token.DIV, Token.COMMA):
                 tokens.append((self.current_char, self.current_char))
                 self.advance()
             elif self.current_char.isalpha() or self.current_char == '\\':
                 tokens.append(self._read_identifier())
-            elif self.current_char.isdigit() or self.current_char == '.':
+            elif self.current_char.isdigit() or self.current_char == Token.DOT:
                 tokens.append(self._read_number())
             else:
                 raise ValueError(f"Caractère inattendu: {self.current_char}")
@@ -39,14 +41,14 @@ class Lexer:
         start_pos = self.pos
         if self.current_char == '\\':
             self.advance()
-        while self.current_char is not None and (self.current_char.isalpha() or self.current_char == '_'):
+        while self.current_char is not None and (self.current_char.isalpha() or self.current_char == Token.UNDERSCORE):
             self.advance()
         identifier = self.text[start_pos + 1:self.pos] if self.text[start_pos] == '\\' else self.text[start_pos:self.pos]
         return ('IDENTIFIER', identifier.lower())
 
     def _read_number(self) -> Tuple[str, str]:
         start_pos = self.pos
-        while self.current_char is not None and (self.current_char.isdigit() or self.current_char == '.'):
+        while self.current_char is not None and (self.current_char.isdigit() or self.current_char == Token.DOT):
             self.advance()
         number = self.text[start_pos:self.pos]
         return ('NUMBER', number)

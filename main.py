@@ -10,8 +10,22 @@ def evaluate_expression(expression: str, variables: dict) -> float:
     evaluator = Evaluator(variables)
     return evaluator.evaluate(ast)
 
+def run_example(n: int) -> None:
+    """Run the nth exemple defined in the `exemples` folder."""
+    path = f"exemples/ex{n:02d}.mathex"
+    with open(path) as f:
+        program = f.read()
+        print(f"[EXAMPLE {n:02d}]")
+        print(program, end=" = ")
+        print(evaluate_expression(program, {}))
+
+def run_all_examples(n_max : int) -> None:
+    for n in range(n_max):
+        run_example(n+1)
+
 if __name__ == "__main__":
-    expression = r"\rho + \sin(x) + \sqrt(2)"
+    expression = r"\rho + \sin{x} + \sqrt{2}"
     variables = {"rho": 1, "x": 0}
     result = evaluate_expression(expression, variables)
+    run_all_examples(4)
     print(f"Résultat: {result} for expressions {expression}")
