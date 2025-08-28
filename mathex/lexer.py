@@ -1,54 +1,63 @@
-from typing import List, Tuple
-from mathex.tokens import Token
+from typing import List, Tuple, Iterable
+from mathex.tokens import Token, TokenType
 
+WHITESPACE = " \n\t"
 
 class Lexer:
     def __init__(self, text: str):
-        self.text = text
-        self.pos = 0
-        self.current_char = self.text[self.pos] if self.text else None
+        self.text: Iterable[str] = iter(text)
+        self.current_char: str | None = None
+        self.advance()
 
-    def advance(self):
-        self.pos += 1
-        if self.pos < len(self.text):
-            self.current_char = self.text[self.pos]
-        else:
+    def advance(self) -> None:
+        try:
+            self.current_char = next(self.text)
+        except StopIteration:
             self.current_char = None
-
-    def skip_whitespace(self):
-        while self.current_char is not None and self.current_char.isspace():
-            self.advance()
-
-    def tokenize(self) -> List[Tuple[str, str]]:
-        tokens = []
+    
+    def generate_tokens(self):
         while self.current_char is not None:
-            if self.current_char.isspace():
-                self.skip_whitespace()
-                continue
-            if self.current_char in (Token.LCURLY, Token.RCURLY, Token.PLUS, Token.MINUS, Token.MUL, Token.DIV, Token.COMMA):
-                tokens.append((self.current_char, self.current_char))
+            if self.current_char in WHITESPACE:
                 self.advance()
-            elif self.current_char.isalpha() or self.current_char == '\\':
-                tokens.append(self._read_identifier())
-            elif self.current_char.isdigit() or self.current_char == Token.DOT:
-                tokens.append(self._read_number())
+            elif self.current_char == '.' or self.current_char.isdigit():
+                yield self.generate_number()
+            elif self.current_char == '+':
+                self.advance()
+                yield Token(TokenType.PLUS)
+            elif self.current_char == '-':
+                self.advance()
+                yield Token(TokenType.MINUS)
+            elif self.current_char == '*':
+                self.advance()
+                yield Token(TokenType.MULTIPLY)
+            elif self.current_char == '/':
+                self.advance()
+                yield Token(TokenType.DIVIDE)
+            elif self.current_char == ')':
+                self.advance()
+                yield Token(TokenType.RPAREN)
+            elif self.current_char == '(':
+                self.advance()
+                yield Token(TokenType.LPAREN)
             else:
-                raise ValueError(f"Caractère inattendu: {self.current_char}")
+                raise Exception(f"Illegal character '{self.current_char}'")
 
-        return tokens
-
-    def _read_identifier(self) -> Tuple[str, str]:
-        start_pos = self.pos
-        if self.current_char == '\\':
+    def generate_number(self):
+        decimal_point_count = 0
+        number_str = self.current_char
+        self.advance()
+        
+        while self.current_char and (self.current_char == '.' or self.current_char.isdigit()):
+            if self.current_char == '.':
+                decimal_point_count += 1
+                if decimal_point_count > 1:
+                    break
+            number_str += self.current_char
             self.advance()
-        while self.current_char is not None and (self.current_char.isalpha() or self.current_char == Token.UNDERSCORE):
-            self.advance()
-        identifier = self.text[start_pos + 1:self.pos] if self.text[start_pos] == '\\' else self.text[start_pos:self.pos]
-        return ('IDENTIFIER', identifier.lower())
-
-    def _read_number(self) -> Tuple[str, str]:
-        start_pos = self.pos
-        while self.current_char is not None and (self.current_char.isdigit() or self.current_char == Token.DOT):
-            self.advance()
-        number = self.text[start_pos:self.pos]
-        return ('NUMBER', number)
+        if number_str.startswith('.'):
+            number_str = '0' + number_str
+        if number_str.endswith('.'):
+            number_str += '0'
+        
+        return Token(TokenType.NUMBER, float(number_str)) # TODO: int si pas de décimal ?
+        

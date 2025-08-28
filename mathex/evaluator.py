@@ -1,16 +1,16 @@
-import numpy as np
+import math
 from mathex.mast import Number, Variable, BinaryOp, FunctionCall, Node
 
 class Evaluator:
     def __init__(self, variables: dict):
         self.variables = {k.lower(): v for k, v in variables.items()}
         self.functions = {
-            'sin': np.sin,
-            'cos': np.cos,
-            'tan': np.tan,
-            'exp': np.exp,
-            'log': np.log,
-            'sqrt': np.sqrt,
+            'sin': math.sin,
+            'cos': math.cos,
+            'tan': math.tan,
+            'exp': math.exp,
+            'log': math.log,
+            'sqrt': math.sqrt,
         }
 
     def evaluate(self, node: Node) -> float:
