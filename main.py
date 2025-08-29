@@ -1,6 +1,6 @@
 from mathex.lexer import Lexer
 from mathex.parser import Parser
-from mathex.evaluator import Evaluator
+from mathex.interpreter import Interpreter
 
 # def evaluate_expression(expression: str, variables: dict) -> float:
 #     lexer = Lexer(expression)
@@ -25,8 +25,19 @@ from mathex.evaluator import Evaluator
 
 if __name__ == "__main__":
     while True:
-        text = input("mathex >> ")
-        lexer = Lexer(text)
-        tokens = lexer.generate_tokens()
-        print(list(tokens))
+        try:
+            text = input("mathex >> ")
+            lexer = Lexer(text)
+            tokens = lexer.generate_tokens()
+            # print(list(tokens))
+            parser = Parser(tokens)
+            tree = parser.parse()
+            if not tree: # no input
+                continue
+            interpreter = Interpreter()
+            value = interpreter.visit(tree, {})
+            print(value)
+        except Exception as e:
+            print(e)
+
 

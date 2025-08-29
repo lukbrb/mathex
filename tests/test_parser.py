@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from mathex.lexer import Lexer
 from mathex.parser import Parser
-from mathex.evaluator import Evaluator
+from mathex.interpreter import Evaluator
 
 class TestParser(unittest.TestCase):
     def test_lexer(self):

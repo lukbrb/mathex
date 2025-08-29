@@ -1,60 +1,75 @@
-from typing import List, Tuple
-from mathex.mast import Number, Variable, BinaryOp, FunctionCall, Node
-from mathex.tokens import Token
+from typing import List
+from mathex.tokens import Token, TokenType
+from mathex.nodes import (MinusNode, NumberNode, AddNode, 
+                          PlusNode, SubstractNode, MultiplyNode, 
+                          DivideNode, Node)
+
 
 class Parser:
-    def __init__(self, tokens: List[Tuple[str, str]]):
-        self.tokens = tokens
-        self.pos = 0
-
+    def __init__(self, tokens: List[Token]) -> None:
+        self.tokens = iter(tokens)
+        self.current_token = None
+        self.advance()
+    
+    def advance(self) -> None:
+        try:
+            self.current_token = next(self.tokens)
+        except StopIteration:
+            self.current_token = None
+    
     def parse(self) -> Node:
-        return self._parse_expression()
-
-    def _parse_expression(self) -> Node:
-        node = self._parse_term()
-        while self.pos < len(self.tokens) and self.tokens[self.pos][0] in (Token.PLUS, Token.MINUS):
-            op = self.tokens[self.pos][0]
-            self.pos += 1
-            node = BinaryOp(left=node, op=op, right=self._parse_term())
+        if self.current_token is None:
+            return None
+        result = self.expr()
+        if self.current_token is not None:
+            raise Exception("Unexpected token after expression")
+        return result
+    
+    def expr(self) -> Node:
+        node = self.term()
+        while self.current_token is not None and self.current_token.kind in (TokenType.PLUS, TokenType.MINUS):
+            if self.current_token.kind == TokenType.PLUS:
+                self.advance()
+                node = AddNode(left=node, right=self.term())
+            elif self.current_token.kind == TokenType.MINUS:
+                self.advance()
+                node = SubstractNode(left=node, right=self.term())
         return node
-
-    def _parse_term(self) -> Node:
-        node = self._parse_factor()
-        while self.pos < len(self.tokens) and self.tokens[self.pos][0] in (Token.MUL, Token.DIV):
-            op = self.tokens[self.pos][0]
-            self.pos += 1
-            node = BinaryOp(left=node, op=op, right=self._parse_factor())
+    
+    def term(self) -> Node:
+        node = self.factor()
+        while self.current_token is not None and self.current_token.kind in (TokenType.MULTIPLY, TokenType.DIVIDE):
+            if self.current_token.kind == TokenType.MULTIPLY:
+                self.advance()
+                node = MultiplyNode(left=node, right=self.factor())
+            elif self.current_token.kind == TokenType.DIVIDE:
+                self.advance()
+                node = DivideNode(left=node, right=self.factor()) 
         return node
-
-    def _parse_factor(self) -> Node:
-        token_type, token_value = self.tokens[self.pos]
-        if token_type == 'NUMBER':
-            self.pos += 1
-            return Number(float(token_value))
-        elif token_type == 'IDENTIFIER':
-            self.pos += 1
-            if self.pos < len(self.tokens) and self.tokens[self.pos][0] == Token.LCURLY:
-                return self._parse_function_call(token_value)
-            else:
-                return Variable(token_value.lower())
-        elif token_value == Token.RCURLY:
-            self.pos += 1
-            node = self._parse_expression()
-            if self.tokens[self.pos][0] != Token.RCURLY:
-                raise ValueError("Parenthèse fermante manquante")
-            self.pos += 1
+    
+    def factor(self) -> Node:
+        token = self.current_token
+        if token is None:
+            raise Exception("Unexpected end of input")
+        
+        if token.kind == TokenType.LPAREN:
+            self.advance()
+            node = self.expr()
+            if self.current_token is None or self.current_token.kind != TokenType.RPAREN:
+                raise Exception("Expected ')'")
+            self.advance()
             return node
-        else:
-            raise ValueError(f"Token inattendu: {token_value}")
-
-    def _parse_function_call(self, func_name: str) -> Node:
-        self.pos += 1  # Skip '('
-        args = []
-        while self.pos < len(self.tokens) and self.tokens[self.pos][0] != Token.RCURLY:
-            args.append(self._parse_expression())
-            if self.pos < len(self.tokens) and self.tokens[self.pos][0] == Token.COMMA:
-                self.pos += 1
-        if self.pos >= len(self.tokens) or self.tokens[self.pos][0] != Token.RCURLY:
-            raise ValueError("Parenthèse fermante manquante")
-        self.pos += 1
-        return FunctionCall(name=func_name.lower(), args=args)
+        
+        if token.kind == TokenType.NUMBER:
+            self.advance()
+            return NumberNode(value=token.value)
+        
+        elif token.kind == TokenType.PLUS:
+            self.advance()
+            return PlusNode(node=self.factor())
+        elif token.kind == TokenType.MINUS:
+            self.advance()
+            return MinusNode(node=self.factor())
+        
+        raise Exception(f"Unexpected token: {token}")
+    
