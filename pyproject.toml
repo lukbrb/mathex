@@ -1,6 +1,6 @@
 [project]
 name = "mathex"
-version = "0.1.0"
+version = "0.2.0a1"
 description = "Simple parser and evaluator for Latex mathemaatical expressions."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -8,6 +8,6 @@ dependencies = []
 
 [dependency-groups]
 dev = [
-    "numpy>=2.3.5",
+    "numpy>=2.2.6",
     "pytest>=9.0.1",
 ]
