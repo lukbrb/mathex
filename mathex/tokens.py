@@ -12,6 +12,7 @@ class TokenType(Enum):
     LPAREN   = 5
     RPAREN   = 6
     FUNCTION = 7
+    NULL     = 8
 
 
 @dataclass

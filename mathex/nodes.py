@@ -57,9 +57,11 @@ class MinusNode: # Unary minus
 
 @dataclass
 class FunctionNode:
-    arg: NumberNode
+    arg: Any
     name: str
     def __repr__(self) -> str:
         return f"{self.name}({self.arg})"
-    
-Node = Union[NumberNode, AddNode, SubstractNode, MultiplyNode, DivideNode, PlusNode, MinusNode]
+
+
+Node = Union[NumberNode, AddNode, SubstractNode, MultiplyNode, DivideNode, PlusNode, MinusNode, FunctionNode, None]
+# TODO: Add Node type for None values?

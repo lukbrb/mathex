@@ -1,10 +1,10 @@
 """Module defining mathematical functions and their implementations."""
 
 import math
-from typing import Callable, Dict
+from collections.abc import Callable
 
 # Dictionary mapping function names to their implementations
-FUNCTIONS: Dict[str, Callable[[float], float]] = {
+FUNCTIONS: dict[str, Callable[[float], float]] = {
     "sin": math.sin,
     "cos": math.cos,
     "tan": math.tan,

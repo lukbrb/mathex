@@ -39,5 +39,3 @@ if __name__ == "__main__":
             print(value)
         except Exception as e:
             print(e)
-
-
