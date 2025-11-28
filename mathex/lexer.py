@@ -1,12 +1,12 @@
-from typing import Iterable
+from typing import Iterable, Optional, Iterator
 from mathex.tokens import Token, TokenType
 
 WHITESPACE = " \n\t"
 
 class Lexer:
-    def __init__(self, text: str):
-        self.text: Iterable[str] = iter(text)
-        self.current_char: str | None = None
+    def __init__(self, text: str) -> None:
+        self.text: Iterator[str] = iter(text)
+        self.current_char: Optional[str]
         self.advance()
 
     def advance(self) -> None:
@@ -14,8 +14,8 @@ class Lexer:
             self.current_char = next(self.text)
         except StopIteration:
             self.current_char = None
-    
-    def generate_tokens(self):
+
+    def generate_tokens(self) -> Iterable[Token]:
         while self.current_char is not None:
             if self.current_char in WHITESPACE:
                 self.advance()
@@ -40,7 +40,7 @@ class Lexer:
                 self.advance()
                 yield Token(TokenType.LPAREN)
             elif self.current_char == "\\":
-                # This is a LaTeX-style identifier for a function e.g. \sin, \cos, \rho. 
+                # This is a LaTeX-style identifier for a function e.g. \sin, \cos, \rho.
                 ident_str = ''
                 self.advance()
                 while self.current_char is not None and (self.current_char.isalpha()):
@@ -51,12 +51,12 @@ class Lexer:
             else:
                 raise Exception(f"Illegal character '{self.current_char}'")
 
-    def generate_number(self):
+    def generate_number(self) -> Token:
         decimal_point_count = 0
-        number_str = self.current_char
+        number_str = self.current_char if self.current_char is not None else ''
         self.advance()
-        
-        while self.current_char and (self.current_char == '.' or self.current_char.isdigit()):
+
+        while self.current_char is not None and (self.current_char == '.' or self.current_char.isdigit()):
             if self.current_char == '.':
                 decimal_point_count += 1
                 if decimal_point_count > 1:
@@ -67,6 +67,5 @@ class Lexer:
             number_str = '0' + number_str
         if number_str.endswith('.'):
             number_str += '0'
-        
+
         return Token(TokenType.NUMBER, float(number_str)) # TODO: int si pas de décimal ?
-        

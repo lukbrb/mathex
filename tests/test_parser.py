@@ -5,7 +5,7 @@ from mathex.parser import Parser
 from mathex.interpreter import Interpreter
 
 class TestParser(unittest.TestCase):
-    def test_lexer(self):
+    def test_lexer(self) -> None:
         lexer = Lexer(r"\sin(5) + 1")
         tokens = lexer.generate_tokens()
 
@@ -21,18 +21,18 @@ class TestParser(unittest.TestCase):
 
         self.assertEqual(t_tokens, expected_tokens)
 
-    def test_parser(self):
+    def test_parser(self) -> None:
         lexer = Lexer(r"(1) + \sin(-1)")
         tokens = lexer.generate_tokens()
         parser = Parser(tokens)
         ast = parser.parse()
         # ctx = {"rho": 1, "x": 0}
-        ctx = {}
+        ctx: dict[str, float] = {}
         evaluator = Interpreter()
         result = evaluator.visit(ast, ctx)
         self.assertAlmostEqual(result, 1 + np.sin(-1))
 
-    def test_interpreter(self):
+    def test_interpreter(self) -> None:
         ctx = {"x": np.pi/2, "y": 0}
         interpreter = Interpreter()
         lexer = Lexer(r"\sin(1) + \cos(3)")

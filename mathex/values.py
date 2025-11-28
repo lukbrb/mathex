@@ -7,7 +7,7 @@ class Number(float):
     value: float
     def __repr__(self) -> str:
         return f"{self.value}"
-    
+
 @dataclass
 class Function:
     # So far functions are assumed to be pure math functions with a single argument
@@ -16,7 +16,7 @@ class Function:
     implementation: fn_type
     def __repr__(self) -> str:
         return f"{self.name}({self.arg})"
-    
+
     def evaluate(self) -> Number:
         res = self.implementation(self.arg.value)
         return Number(res)
