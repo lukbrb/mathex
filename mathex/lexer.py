@@ -1,4 +1,4 @@
-from typing import List, Tuple, Iterable
+from typing import Iterable
 from mathex.tokens import Token, TokenType
 
 WHITESPACE = " \n\t"
@@ -39,6 +39,15 @@ class Lexer:
             elif self.current_char == '(':
                 self.advance()
                 yield Token(TokenType.LPAREN)
+            elif self.current_char == "\\":
+                # This is a LaTeX-style identifier for a function e.g. \sin, \cos, \rho. 
+                ident_str = ''
+                self.advance()
+                while self.current_char is not None and (self.current_char.isalpha()):
+                    ident_str += self.current_char
+                    self.advance()
+                yield Token(TokenType.FUNCTION, ident_str)
+
             else:
                 raise Exception(f"Illegal character '{self.current_char}'")
 

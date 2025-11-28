@@ -1,4 +1,6 @@
-from mathex.nodes import *
+from mathex.function import FUNCTIONS
+from mathex.nodes import (Node, AddNode, SubstractNode, MultiplyNode,
+                          DivideNode, PlusNode, MinusNode, FunctionNode)
 from mathex.values import Number
 
 
@@ -40,4 +42,12 @@ class Interpreter:
     def visit_MinusNode(self, node: MinusNode, context: dict) -> Number:
         value = self.visit(node.node, context)
         return Number(-value.value)
+    
+    def visit_FunctionNode(self, node: FunctionNode, context: dict) -> Number:
+        arg_value = self.visit(node.arg, context)
+        function_impl = FUNCTIONS.get(node.name)
+        if function_impl is None:
+            raise Exception(f"Unknown function '{node.name}'")
+        result = function_impl(arg_value.value)
+        return Number(result)
     

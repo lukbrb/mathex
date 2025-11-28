@@ -1,6 +1,6 @@
 from typing import List
 from mathex.tokens import Token, TokenType
-from mathex.nodes import (MinusNode, NumberNode, AddNode, 
+from mathex.nodes import (FunctionNode, MinusNode, NumberNode, AddNode, 
                           PlusNode, SubstractNode, MultiplyNode, 
                           DivideNode, Node)
 
@@ -59,6 +59,11 @@ class Parser:
                 raise Exception("Expected ')'")
             self.advance()
             return node
+        
+        if token.kind == TokenType.FUNCTION:
+            func_name = token.value
+            self.advance()
+            return FunctionNode(name=func_name, arg=self.factor())
         
         if token.kind == TokenType.NUMBER:
             self.advance()
