@@ -35,12 +35,39 @@ class TestParser(unittest.TestCase):
     def test_interpreter(self) -> None:
         ctx = {"x": np.pi/2, "y": 0}
         interpreter = Interpreter()
-        lexer = Lexer(r"\sin(1) + \cos(3)")
+        lexer = Lexer(r"\sin(1) + \cos(3*2)")
         tokens = lexer.generate_tokens()
         parser = Parser(tokens)
         ast = parser.parse()
         result = interpreter.visit(ast, ctx)
-        self.assertAlmostEqual(result, np.sin(1) + np.cos(3))
+        self.assertAlmostEqual(result, np.sin(1) + np.cos(3*2))
+
+    def test_interpreter_with_power(self) -> None:
+        interpreter = Interpreter()
+        lexer = Lexer(r"2 ^ 3 * 2")
+        tokens = lexer.generate_tokens()
+        parser = Parser(tokens)
+        ast = parser.parse()
+        result = interpreter.visit(ast, {})
+        self.assertAlmostEqual(result, 2 ** 3 * 2)
+
+    def test_interpreter_with_composed_power(self) -> None:
+        interpreter = Interpreter()
+        lexer = Lexer(r"2 ^ (3 * 2) - 2")
+        tokens = lexer.generate_tokens()
+        parser = Parser(tokens)
+        ast = parser.parse()
+        result = interpreter.visit(ast, {})
+        self.assertAlmostEqual(result, 2 ** (3 * 2) - 2)
+
+    def test_interpreter_with_right_associative_power(self) -> None:
+        interpreter = Interpreter()
+        lexer = Lexer(r"2 + 3 * (1 * 5 * (3+2)^2)")
+        tokens = lexer.generate_tokens()
+        parser = Parser(tokens)
+        ast = parser.parse()
+        result = interpreter.visit(ast, {})
+        self.assertAlmostEqual(result,  2 + 3 * (1 * 5 * (3+2)**2))
 
 if __name__ == "__main__":
     unittest.main()

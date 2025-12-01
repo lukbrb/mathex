@@ -47,7 +47,9 @@ class Lexer:
                     ident_str += self.current_char
                     self.advance()
                 yield Token(TokenType.FUNCTION, ident_str)
-
+            elif self.current_char == '^':
+                self.advance()
+                yield Token(TokenType.POWER)
             else:
                 raise Exception(f"Illegal character '{self.current_char}'")
 

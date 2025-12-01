@@ -2,7 +2,7 @@ from typing import Iterable, Iterator, Optional
 from mathex.tokens import Token, TokenType
 from mathex.nodes import (FunctionNode, MinusNode, NumberNode, AddNode,
                           PlusNode, SubstractNode, MultiplyNode,
-                          DivideNode, Node)
+                          DivideNode, PowerNode, Node)
 
 
 class Parser:
@@ -37,14 +37,14 @@ class Parser:
         return node
 
     def term(self) -> Node:
-        node = self.factor()
+        node = self.power()
         while self.current_token is not None and self.current_token.kind in (TokenType.MULTIPLY, TokenType.DIVIDE):
             if self.current_token.kind == TokenType.MULTIPLY:
                 self.advance()
-                node = MultiplyNode(left=node, right=self.factor())
+                node = MultiplyNode(left=node, right=self.power())
             elif self.current_token.kind == TokenType.DIVIDE:
                 self.advance()
-                node = DivideNode(left=node, right=self.factor())
+                node = DivideNode(left=node, right=self.power())
         return node
 
     def factor(self) -> Node:
@@ -72,8 +72,21 @@ class Parser:
         elif token.kind == TokenType.PLUS:
             self.advance()
             return PlusNode(node=self.factor())
+
         elif token.kind == TokenType.MINUS:
             self.advance()
             return MinusNode(node=self.factor())
 
         raise Exception(f"Unexpected token: {token}")
+
+    def power(self) -> Node:
+        """
+        Parse exponentiation with right-associativity.
+        power := factor ( POWER power )?
+        """
+        node = self.factor()
+        if self.current_token is not None and self.current_token.kind == TokenType.POWER:
+            self.advance()
+            # right-associative: parse the RHS as another power
+            node = PowerNode(base=node, exponent=self.power())
+        return node

@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from mathex.function import FUNCTIONS
 from mathex.nodes import (Node, AddNode, SubstractNode, MultiplyNode,
-                          DivideNode, PlusNode, MinusNode, FunctionNode)
+                          DivideNode, PlusNode, MinusNode, FunctionNode, PowerNode)
 from mathex.values import Number
 
 
@@ -52,3 +52,8 @@ class Interpreter:
             raise Exception(f"Unknown function '{node.name}'")
         result = function_impl(arg_value.value)
         return Number(result)
+
+    def visit_PowerNode(self, node: PowerNode, context: Ctx_Type) -> Number:
+        base = self.visit(node.base, context)
+        exponent = self.visit(node.exponent, context)
+        return Number(base.value ** exponent.value)

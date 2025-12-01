@@ -42,6 +42,14 @@ class DivideNode:
 
 
 @dataclass
+class PowerNode:
+    base: Any
+    exponent: Any
+    def __repr__(self) -> str:
+        return f"({self.base} ^ {self.exponent})"
+
+
+@dataclass
 class PlusNode: # Unary plus
     node: Any
     def __repr__(self) -> str:
@@ -63,5 +71,5 @@ class FunctionNode:
         return f"{self.name}({self.arg})"
 
 
-Node = Union[NumberNode, AddNode, SubstractNode, MultiplyNode, DivideNode, PlusNode, MinusNode, FunctionNode, None]
+Node = Union[NumberNode, AddNode, SubstractNode, MultiplyNode, DivideNode, PlusNode, MinusNode, FunctionNode, PowerNode, None]
 # TODO: Add Node type for None values?
