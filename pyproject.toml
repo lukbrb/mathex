@@ -1,6 +1,6 @@
 [project]
 name = "mathex"
-version = "0.2.0a1"
+version = "0.2.1"
 description = "Simple parser and evaluator for Latex mathemaatical expressions."
 readme = "README.md"
 license = "MIT"
